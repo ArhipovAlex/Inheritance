@@ -201,7 +201,7 @@ void main()
 
 	Graduate graduate("Schrader", "Hank", 40, "Criminalistic", "OBN", 80, 70, "How to catch Heisenberg");
 	graduate.print();
-#endif //INHERITANCE_CHECK
+#endif //INHERITANCE_CHECK 
 	Human* group[] =
 	{
 		new Student("Pincman", "Jessie", 22, "Chemistry", "WW_220", 90, 95),
