@@ -1,4 +1,5 @@
 #include<iostream>
+#include<fstream>
 //using namespace std;
 using std::cin;
 using std::cout;
@@ -13,15 +14,15 @@ class Human
 	std::string first_name;
 	int age;
 public:
-	const std::string& get_last_name()
+	const std::string& get_last_name()const
 	{
 		return last_name;
 	}
-	const std::string& get_first_name()
+	const std::string& get_first_name()const
 	{
 		return first_name;
 	}
-	int get_age()
+	int get_age()const
 	{
 		return age;
 	}
@@ -55,6 +56,10 @@ public:
 		cout << last_name << " " << first_name << " " << age << " y/o\n";
 	}
 };
+std::ostream& operator<<(std::ostream& os, const Human& obj)
+{
+	return os << obj.get_last_name() << " " << obj.get_first_name() << " " << obj.get_age() << " лет.";
+}
 
 #define STUDENT_TAKE_PARAMETERS const std::string& speciality, const std::string& group, double rating, double attendance
 #define STUDENT_GIVE_PARAMETERS speciality, group, rating, attendance
@@ -184,6 +189,9 @@ public:
 	}
 };
 
+void print(Human* group[], const int n);
+void save(Human* group[], const int n, const char sz_filename[]);
+
 //#define INHERITANCE_CHECK
 
 void main()
@@ -207,11 +215,32 @@ void main()
 		new Student("Pincman", "Jessie", 22, "Chemistry", "WW_220", 90, 95),
 		new Teacher("White", "Walter", 50, "Chemistry", 20),
 		new Graduate("Schrader", "Hank", 40, "Criminalistic", "OBN", 80, 70, "How to catch Heisenberg"),
+		new Student("Vercetti", "Tomas", 30, "Theft", "Vice", 98, 99),
+		new Teacher("Diaz", "Ricardo", 50, "Weapons distribution", 25)
 	};
+
+	print(group, sizeof(group) / sizeof(group[0]));
+
 	for (int i = 0; i < sizeof(group) / sizeof(group[0]); i++)
 	{
-		group[i]->print();
-		cout << delimiter;
+		delete group[i];
 	}
 
+}
+
+void print(Human* group[], const int n)
+{
+	cout << delimiter << endl;
+	for (int i = 0; i < n; i++)
+	{
+		//group[i]->print();
+		cout << *group[i] << endl;
+		cout << delimiter << endl;
+	}
+}
+void save(Human* group[], const int n, const char sz_filename[])
+{
+	std::ofstream fout(sz_filename);
+
+	fout.close();
 }
