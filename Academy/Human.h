@@ -25,7 +25,7 @@ public:
 	void set_age(int age);
 	//		Constructors:
 	Human(HUMAN_TAKE_PARAMETERS);
-	~Human();
+	virtual ~Human();
 	virtual void print()const;
 };
 //йнмеж назъбкемхъ йкюяяю HUMAN//

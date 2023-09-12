@@ -14,6 +14,7 @@ public:
 	void set_speciality(const std::string& speciality);
 	void set_experience(int experience);
 	Teacher(HUMAN_TAKE_PARAMETERS, TEACHER_TAKE_PARAMETERS);
+	~Teacher();
 	void print()const;
 };
 //йнмеж назъбкемхъ йкюяяю TEACHER//

@@ -25,6 +25,10 @@ Teacher::Teacher(HUMAN_TAKE_PARAMETERS, TEACHER_TAKE_PARAMETERS) :Human(HUMAN_GI
 	set_experience(experience);
 	cout << "TConstructor:\t" << this << endl;
 }
+Teacher::~Teacher()
+{
+	cout << "TDestructor:\t" << this << endl;
+}
 void Teacher::print()const
 {
 	Human::print();

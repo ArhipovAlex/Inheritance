@@ -43,5 +43,6 @@ void Human::print()const
 {
 	cout << last_name << " " << first_name << " " << age << " y/o\n";
 }
+
 //ÊÎÍÅÖ ÎÏÈÑÀÍÈß ÊËÀÑÑÀ HUMAN//
 ///////////////////////////////
