@@ -10,6 +10,9 @@ using std::endl;
 #define HUMAN_GIVE_PARAMETERS last_name, first_name, age
 class Human
 {
+	static const int LAST_NAME_WIDTH = 15;
+	static const int FIRST_NAME_WIDTH = 15;
+	static const int AGE_WIDTH = 3;
 	std::string last_name;
 	std::string first_name;
 	int age;
@@ -55,16 +58,37 @@ public:
 	{
 		return os << last_name << " " << first_name << " " << age << " y/o";
 	}
+	virtual std::ofstream& print(std::ofstream& ofs)const
+	{	
+		ofs.width(LAST_NAME_WIDTH);
+		ofs << std::left;
+		ofs << last_name;
+		ofs.width(FIRST_NAME_WIDTH);
+		ofs << std::left;
+		ofs << first_name;
+		ofs.width(AGE_WIDTH);
+		ofs << age;
+		return ofs;
+	}
 };
 std::ostream& operator<<(std::ostream& os, const Human& obj)
 {
 	return obj.print(os);
 }
+std::ofstream& operator<<(std::ofstream& ofs, const Human& obj)
+{	
+	obj.print(ofs);
+	return ofs;
+}
 
 #define STUDENT_TAKE_PARAMETERS const std::string& speciality, const std::string& group, double rating, double attendance
 #define STUDENT_GIVE_PARAMETERS speciality, group, rating, attendance
 class Student : public Human
-{
+{	
+	static const int SPECIALITY_WIDTH = 25;
+	static const int GROUP_WIDTH = 8;
+	static const int RATING_WIDTH = 8;
+	static const int ATTENDANCE_WIDTH = 8;
 	std::string speciality;
 	std::string group;
 	double rating;
@@ -116,9 +140,22 @@ public:
 	{
 		cout << "SDestructor:\t" << this << endl;
 	}
-	std::ostream& print(std::ostream& os)const
+	std::ostream& print(std::ostream& os)const override
 	{	
 		return Human::print(os)<<" "<< speciality << " " << group << " " << rating << " " << attendance;
+	}	
+	std::ofstream& print(std::ofstream& ofs)const override
+	{	
+		Human::print(ofs);
+		ofs.width(SPECIALITY_WIDTH);
+		ofs << speciality;
+		ofs.width(GROUP_WIDTH);
+		ofs << group;
+		ofs.width(RATING_WIDTH);
+		ofs << rating;
+		ofs.width(ATTENDANCE_WIDTH);
+		ofs<< attendance;
+		return ofs;
 	}
 };
 
@@ -126,6 +163,8 @@ public:
 #define TEACHER_GIVE_PARAMETERS speciality, experience
 class Teacher :public Human
 {
+	static const int SPECIALITY_WIDTH = 25;
+	static const int EXPERIENCE_WIDTH = 3;
 	std::string speciality;
 	int experience;
 public:
@@ -151,9 +190,18 @@ public:
 		set_experience(experience);
 		cout << "TConstructor:\t" << this << endl;
 	}
-	std::ostream& print(std::ostream& os)const
+	std::ostream& print(std::ostream& os)const override
 	{
 		return Human::print(os)<<" "<< speciality << " " << experience << " years";
+	}
+	std::ofstream& print(std::ofstream& ofs)const override
+	{
+		Human::print(ofs);
+		ofs.width(SPECIALITY_WIDTH);
+		ofs << speciality;
+		ofs.width(EXPERIENCE_WIDTH);
+		ofs<< experience;
+		return ofs;
 	}
 };
 
@@ -180,9 +228,14 @@ public:
 	{
 		cout << "GDetructor:\t" << this << endl;
 	}
-	std::ostream& print(std::ostream& os)const
+	std::ostream& print(std::ostream& os)const override
 	{
 		return Student::print(os)<<" "<< subject;
+	}	
+	std::ofstream& print(std::ofstream& ofs)const override
+	{
+		Student::print(ofs)<<" "<< subject;
+		return ofs;
 	}
 };
 
@@ -217,6 +270,7 @@ void main()
 	};
 
 	print(group, sizeof(group) / sizeof(group[0]));
+	save(group, sizeof(group) / sizeof(group[0]), "group.txt");
 
 	for (int i = 0; i < sizeof(group) / sizeof(group[0]); i++)
 	{
@@ -238,6 +292,14 @@ void print(Human* group[], const int n)
 void save(Human* group[], const int n, const char sz_filename[])
 {
 	std::ofstream fout(sz_filename);
-
+	for (int i = 0; i < n; i++)
+	{
+		//group[i]->print();
+		fout << typeid(*group[i]).name() << ":\t";
+		fout << *group[i] << endl;
+	}
 	fout.close();
+	std::string command = "notepad ";
+	command += sz_filename;
+	system(command.c_str());
 }
