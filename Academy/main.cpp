@@ -51,14 +51,14 @@ public:
 		cout << "HDestructor:\t" << this << endl;
 	}
 
-	virtual void print()const
+	virtual std::ostream& print(std::ostream& os)const
 	{
-		cout << last_name << " " << first_name << " " << age << " y/o\n";
+		return os << last_name << " " << first_name << " " << age << " y/o";
 	}
 };
 std::ostream& operator<<(std::ostream& os, const Human& obj)
 {
-	return os << obj.get_last_name() << " " << obj.get_first_name() << " " << obj.get_age() << " лет.";
+	return obj.print(os);
 }
 
 #define STUDENT_TAKE_PARAMETERS const std::string& speciality, const std::string& group, double rating, double attendance
@@ -116,10 +116,9 @@ public:
 	{
 		cout << "SDestructor:\t" << this << endl;
 	}
-	void print()const
+	std::ostream& print(std::ostream& os)const
 	{	
-		Human::print();
-		cout << speciality << " " << group << " " << rating << " " << attendance << "\n";
+		return Human::print(os)<<" "<< speciality << " " << group << " " << rating << " " << attendance;
 	}
 };
 
@@ -152,10 +151,9 @@ public:
 		set_experience(experience);
 		cout << "TConstructor:\t" << this << endl;
 	}
-	void print()const
+	std::ostream& print(std::ostream& os)const
 	{
-		Human::print();
-		cout << speciality << " " << experience << " years\n";
+		return Human::print(os)<<" "<< speciality << " " << experience << " years";
 	}
 };
 
@@ -182,10 +180,9 @@ public:
 	{
 		cout << "GDetructor:\t" << this << endl;
 	}
-	void print()const
+	std::ostream& print(std::ostream& os)const
 	{
-		Student::print();
-		cout << subject << endl;
+		return Student::print(os)<<" "<< subject;
 	}
 };
 
