@@ -7,14 +7,10 @@
 void print(Human* group[], const int n);
 void save(Human* group[], const int n, const char sz_filename[]);
 
-void Human::print()const
-{
-	cout << last_name << " " << first_name << " " << age << " y/o\n";
-}
 
 std::ostream& operator<<(std::ostream& os, const Human& obj)
 {
-	return obj.print(os);
+	return os << obj.get_last_name() << " " << obj.get_first_name() << " " << obj.get_age() << " y/o\n";
 }
 //#define INHERITANCE_CHECK
 
