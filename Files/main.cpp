@@ -5,8 +5,24 @@ using std::cin;
 using std::cout;
 using std::endl;
 
+std::string findIP(std::string const& str, int n=15) {
+	if (str.length() < n) {
+		return str;
+	}
+
+	return str.substr(0, n);
+}
+std::string findMAC(std::string const& str, int n=15) {
+	if (str.length() < n) {
+		return str;
+	}
+
+	return str.substr(0, n);
+}
+
 //#define WRITE_TO_FILE
-#define READ_FROM_FILE
+//#define READ_FROM_FILE
+#define RAW_READY
 
 void main()
 {
@@ -40,5 +56,38 @@ void main()
 		std::cerr << "Error: File not found" << endl;
 	}
 #endif //READ_FROM_FILE
-
+#ifdef RAW_READY
+	std::ifstream fin;
+	fin.open("201 RAW.txt");
+	if (fin.is_open())
+	{
+		//TODO: read file
+		std::ofstream fout;
+		fout.open("201 ready.txt");
+		const int SIZE = 18;
+		char ip_buffer[SIZE] = {};
+		char mac_buffer[SIZE] = {};
+		int k = 1;
+		while (!fin.eof())
+		{
+			if (k%2!=0) {
+				fin >> ip_buffer;
+				k++;
+			}
+			else
+			{
+				fin >> mac_buffer;
+				k++;
+				fout << mac_buffer << "\t" << ip_buffer<<endl;
+			}
+		}
+		fin.close();
+		fout.close();
+		system("notepad 201 ready.txt");
+	}
+	else
+	{
+		std::cerr << "Error: File not found" << endl;
+	}
+#endif //RAW_READY
 }

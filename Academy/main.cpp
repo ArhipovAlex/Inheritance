@@ -7,11 +7,11 @@
 void print(Human* group[], const int n);
 void save(Human* group[], const int n, const char sz_filename[]);
 
-	virtual void print()const
-	{
-		cout << last_name << " " << first_name << " " << age << " y/o\n";
-	}
-};
+void Human::print()const
+{
+	cout << last_name << " " << first_name << " " << age << " y/o\n";
+}
+
 std::ostream& operator<<(std::ostream& os, const Human& obj)
 {
 	return obj.print(os);
