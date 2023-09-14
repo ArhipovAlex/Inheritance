@@ -5,14 +5,14 @@ using std::cin;
 using std::cout;
 using std::endl;
 
-std::string findIP(std::string const& str, int n=15) {
+std::string findIP(std::string const& str, int n = 15) {
 	if (str.length() < n) {
 		return str;
 	}
 
 	return str.substr(0, n);
 }
-std::string findMAC(std::string const& str, int n=15) {
+std::string findMAC(std::string const& str, int n = 15) {
 	if (str.length() < n) {
 		return str;
 	}
@@ -30,7 +30,7 @@ void main()
 #ifdef WRITE_TO_FILE
 	std::ofstream fout;							//1) Создали поток
 	fout.open("File.txt", std::ios_base::app);	//2) Открыли поток (доп ", std::ios_base::app" позволяет открывать файл для дозаписи а не создавать каждый раз заново
-	fout << "Hello Files"<<endl;				//3) Пишем в поток
+	fout << "Hello Files" << endl;				//3) Пишем в поток
 	fout << "Сам привет!\n";
 	fout.close();								//4) Когда поток не нужен, закрываем его
 	system("notepad File.txt");
@@ -67,19 +67,18 @@ void main()
 		const int SIZE = 18;
 		char ip_buffer[SIZE] = {};
 		char mac_buffer[SIZE] = {};
-		int k = 1;
 		while (!fin.eof())
 		{
-				fin >> ip_buffer >> mac_buffer;
-				fout << mac_buffer << "\t" << ip_buffer<<endl;
+			fin >> ip_buffer >> mac_buffer;
+			fout << mac_buffer << "\t" << ip_buffer << endl;
 		}
 		fin.close();
-		fout.close();
 		system("notepad 201 ready.txt");
 	}
 	else
 	{
 		std::cerr << "Error: File not found" << endl;
 	}
+	fout.close();
 #endif //RAW_READY
 }
