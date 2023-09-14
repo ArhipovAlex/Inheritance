@@ -70,16 +70,8 @@ void main()
 		int k = 1;
 		while (!fin.eof())
 		{
-			if (k%2!=0) {
-				fin >> ip_buffer;
-				k++;
-			}
-			else
-			{
-				fin >> mac_buffer;
-				k++;
+				fin >> ip_buffer >> mac_buffer;
 				fout << mac_buffer << "\t" << ip_buffer<<endl;
-			}
 		}
 		fin.close();
 		fout.close();
