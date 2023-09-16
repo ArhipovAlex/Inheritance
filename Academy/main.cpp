@@ -1,5 +1,6 @@
 #include<iostream>
 #include<fstream>
+#include<string>
 //using namespace std;
 using std::cin;
 using std::cout;
@@ -70,6 +71,11 @@ public:
 		ofs << age;
 		return ofs;
 	}
+	virtual std::ifstream& scan(std::ifstream& ifs)
+	{
+		ifs >> last_name >> first_name >> age;
+		return ifs;
+	}
 };
 std::ostream& operator<<(std::ostream& os, const Human& obj)
 {
@@ -79,6 +85,10 @@ std::ofstream& operator<<(std::ofstream& ofs, const Human& obj)
 {	
 	obj.print(ofs);
 	return ofs;
+}
+std::ifstream& operator>>(std::ifstream& ifs, Human& obj)
+{
+	return obj.scan(ifs);
 }
 
 #define STUDENT_TAKE_PARAMETERS const std::string& speciality, const std::string& group, double rating, double attendance
@@ -157,6 +167,21 @@ public:
 		ofs<< attendance;
 		return ofs;
 	}
+	std::ifstream& scan(std::ifstream& ifs)override
+	{
+		Human::scan(ifs);
+		const int SIZE = 256;
+		char sz_buffer[SIZE] = {};
+		ifs.read(sz_buffer, SPECIALITY_WIDTH);
+		for (int i = SPECIALITY_WIDTH - 1; sz_buffer[i] == ' '; i--) sz_buffer[i] = 0;
+		while (sz_buffer[0] == ' ')
+			for (int i = 0; sz_buffer[i]; i++) sz_buffer[i] = sz_buffer[i + 1];
+		this->speciality = sz_buffer;
+		ifs >> group;
+		ifs >> rating;
+		ifs >> attendance;
+		return ifs;
+	}
 };
 
 #define TEACHER_TAKE_PARAMETERS const std::string& speciality, int experience
@@ -203,6 +228,19 @@ public:
 		ofs<< experience;
 		return ofs;
 	}
+	std::ifstream& scan(std::ifstream& ifs)override
+	{
+		Human::scan(ifs);
+		const int SIZE = SPECIALITY_WIDTH+1;
+		char sz_buffer[SIZE] = {};
+		ifs.read(sz_buffer, SPECIALITY_WIDTH);
+		for (int i = SPECIALITY_WIDTH-1; sz_buffer[i] == ' '; i--) sz_buffer[i] = 0;
+		while (sz_buffer[0] == ' ')
+			for (int i = 0; sz_buffer[i]; i++) sz_buffer[i] = sz_buffer[i+ 1] ;
+		this->speciality = sz_buffer;
+		ifs >> experience;
+		return ifs;
+	}
 };
 
 class Graduate :public Student
@@ -237,12 +275,21 @@ public:
 		Student::print(ofs)<<" "<< subject;
 		return ofs;
 	}
+	std::ifstream& scan(std::ifstream& ifs)override
+	{
+		Student::scan(ifs);
+		std::getline(ifs, subject);
+		return ifs;
+	}
 };
 
 void print(Human* group[], const int n);
 void save(Human* group[], const int n, const char sz_filename[]);
+Human* human_factory(const std::string& type);
+Human** load(const char sz_filename[], int& n);
 
 //#define INHERITANCE_CHECK
+//#define POLYMORFISM_CHECK
 
 void main()
 {
@@ -260,7 +307,8 @@ void main()
 	Graduate graduate("Schrader", "Hank", 40, "Criminalistic", "OBN", 80, 70, "How to catch Heisenberg");
 	graduate.print();
 #endif //INHERITANCE_CHECK 
-	Human* group[] =
+#ifdef POLYMORFISM_CHECK
+	Human* group[]
 	{
 		new Student("Pincman", "Jessie", 22, "Chemistry", "WW_220", 90, 95),
 		new Teacher("White", "Walter", 50, "Chemistry", 20),
@@ -276,6 +324,11 @@ void main()
 	{
 		delete group[i];
 	}
+#endif //POLYMORFISM_CHECK
+
+	int n = 0;//размер массива
+	Human** group = load("group.txt",n);
+	print(group, n);
 
 }
 
@@ -289,6 +342,7 @@ void print(Human* group[], const int n)
 		cout << delimiter << endl;
 	}
 }
+
 void save(Human* group[], const int n, const char sz_filename[])
 {
 	std::ofstream fout(sz_filename);
@@ -302,4 +356,53 @@ void save(Human* group[], const int n, const char sz_filename[])
 	std::string command = "notepad ";
 	command += sz_filename;
 	system(command.c_str());
+}
+
+Human* human_factory(const std::string& type)
+{
+	if (type.find("Student") != std::string::npos)return new Student("", "", 0, "", "", 0, 0);
+	if (type.find("Graduate") != std::string::npos)return new Graduate("", "", 0, "", "", 0, 0, "");
+	if (type.find("Teacher") != std::string::npos)return new Teacher("", "", 0, "", 0);
+
+}
+
+Human** load(const char sz_filename[], int& n)
+{
+	n = 0;//размер массива
+	Human** group = nullptr;
+	std::ifstream fin(sz_filename);
+	if (fin.is_open())
+	{
+		//1) Считаем кол-во объектов в файле:
+		std::string buffer;
+		while (!fin.eof()) 
+		{
+			std::getline(fin, buffer);
+			if (buffer.empty())continue;
+			n++;
+		}	
+
+		//2)Выделяем память под массив элементов:
+		group = new Human * [n] {};
+
+		//3) Возвращаемся в начало файла для чтения
+		cout << "Position:\t" << fin.tellg() << endl;
+		fin.clear();
+		fin.seekg(0);
+		cout << "Position:\t" << fin.tellg() << endl;
+
+		//4) Читаем объекты из файла:
+		for (int i = 0; i < n; i++)
+		{
+			std::getline(fin, buffer, ':');
+			group[i] = human_factory(buffer);
+			if(group[i])fin >> *group[i];
+		}
+		fin.close();
+	}
+	else
+	{
+		std::cerr << "Error: File not found" << endl;
+	}
+	return group;
 }
