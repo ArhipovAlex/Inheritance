@@ -84,8 +84,9 @@ public:
 
 };
 
- class Square :public Shape
+class Square :public Shape
 {
+private:
 	double side;
 public:
 	double get_side()const
@@ -141,11 +142,12 @@ public:
 		//Контекст устройства и все инструменты занимают ресурсы, нужно освобождать в конце работы
 	}
 };
- class Rectangle :public Shape
- {
+class Rectangle :public Shape
+{
+private:
 	 double side_a;
 	 double side_b;
- public:
+public:
 	 double get_side_a()const
 	 {
 		 return side_a;
@@ -197,21 +199,136 @@ public:
 		set_side_b(side_b);
 	}
 	~Rectangle(){}
- };
+};
 
+class Circle :public Shape
+{
+private:
+	double radius;
+public:
+	double get_radius()const
+	{
+		return radius;
+	}
+	void set_radius(double radius)
+	{
+		this->radius = radius;
+	}
+	double get_area()const override
+	{
+		return 3.14*radius*radius;
+	}
+	double get_perimeter()const override
+	{
+		return 3.14 * 2 * radius;
+	}
+	void draw()const override
+	{
+		HWND hwnd = GetConsoleWindow();
+		HDC hdc = GetDC(hwnd);
+
+		HPEN hPen = CreatePen(PS_SOLID, line_width, color);
+		HBRUSH hBrush = CreateSolidBrush(color);
+
+		SelectObject(hdc, hPen);
+		SelectObject(hdc, hBrush);
+
+		Ellipse(hdc, start_x, start_y, start_x + radius, start_y + radius);
+
+		DeleteObject(hPen);
+		DeleteObject(hBrush);
+
+		ReleaseDC(hwnd, hdc);
+	}
+	Circle(double radius, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
+	{
+		set_color(color);
+		set_start_x(start_x);
+		set_start_y(start_y);
+		set_radius(radius);
+	}
+	~Circle(){}
+};
+class Triangle :public Shape
+{
+private:
+	double side;
+public:
+	double get_side()const
+	{
+		return side;
+	}
+	void set_side(double side)
+	{
+		this->side = side;
+	}
+	double get_area()const override
+	{
+		return side * side * sqrt(3) / 4;
+	}
+	double get_perimeter()const override
+	{
+		return side * 3;
+	}
+	void draw()const override
+	{
+		HWND hwnd = GetConsoleWindow();
+		HDC hdc = GetDC(hwnd);
+
+		HPEN hPen = CreatePen(PS_SOLID, line_width, color);
+		HBRUSH hBrush = CreateSolidBrush(color);
+
+		SelectObject(hdc, hPen);
+		SelectObject(hdc, hBrush);
+		POINT polygon[3] = { {start_x,start_y},{start_x + side,start_y},{start_x+side/2,side * sqrt(3)/2 + start_y}};
+		::Polygon(hdc, polygon,3);
+
+		DeleteObject(hPen);
+		DeleteObject(hBrush);
+
+		ReleaseDC(hwnd, hdc);
+	}
+	Triangle(double side, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
+	{
+		set_side(side);
+	}
+	~Triangle() {}
+};
+
+//#define SQUARE
+//#define RECTANGLE
+//#define CIRCLE
+#define TRIANGLE
 void main()
 {
 	setlocale(LC_ALL, "");
+#ifdef SQUARE
 	Square square(150, Color::red,200,200,5);
 	cout << "Длина стороны: " << square.get_side() << endl;
 	cout << "Периметр:\t" << square.get_perimeter() << endl;
 	cout << "Площадь:\t" << square.get_area() << endl;
 	square.draw();
-
+#endif //SQUARE
+#ifdef RECTANGLE
 	class Rectangle rect(200, 150,Color::blue,200,500,5);
 	cout << "Сторона А:\t" << rect.get_side_a() << endl;
 	cout << "Сторона B:\t" << rect.get_side_b() << endl;
-	cout << "Прощадь:\t" << rect.get_area() << endl;
-	cout << "Прощадь:\t" << rect.get_perimeter() << endl;
+	cout << "Площадь:\t" << rect.get_area() << endl;
+	cout << "Периметр:\t" << rect.get_perimeter() << endl;
 	rect.draw();
+#endif //RECTANGLE
+#ifdef CIRCLE
+	Circle circle(150, Color::green, 200, 200, 5);
+	cout << "Радиус круга: " << circle.get_radius() << endl;
+	cout << "Периметр:\t" << circle.get_perimeter() << endl;
+	cout << "Площадь:\t" << circle.get_area() << endl;
+	circle.draw();
+#endif //CIRCLE
+#ifdef TRIANGLE
+	class Triangle triang(150, Color::yellow, 300, 300, 5);
+	cout << "Длина стороны: " << triang.get_side() << endl;
+	cout << "Периметр:\t" << triang.get_perimeter() << endl;
+	cout << "Площадь:\t" << triang.get_area() << endl;
+	triang.draw();
+#endif //TRIANGLE
 }
