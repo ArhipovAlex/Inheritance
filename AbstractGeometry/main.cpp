@@ -1,7 +1,9 @@
+#define _USE_MATH_DEFINES
 #include<iostream>
 #include<windows.h>
 using namespace std;
 
+#define delimiter "\n-----------------------\n"
 //enum (Enumeration - Перечисление) - это набор именованных целочисленных констант
 enum Color
 {
@@ -19,6 +21,8 @@ enum Color
 
 class Shape
 {
+protected:
+
 	static const int MIN_START_X = 10;
 	static const int MAX_START_X = 800;	
 
@@ -27,7 +31,10 @@ class Shape
 
 	static const int MIN_LINE_WIDTH = 1;
 	static const int MAX_LINE_WIDTH = 30;
-protected:
+
+	static const int MIN_DIMENSION = 25;
+	static const int MAX_DIMENSION = 500;
+
 	Color color;
 	int start_x;
 	int start_y;
@@ -81,12 +88,19 @@ public:
 		set_start_y(start_y);
 		set_line_width(line_width);
 	}
-
+	~Shape(){}
+	void info()const
+	{
+		cout << "Площадь фигуры: " << get_area() << endl;
+		cout << "Периметр фигуры: " << get_perimeter() << endl;
+		draw();
+	}
 };
 
+#ifdef SQUARE_INDEPENDENT
 class Square :public Shape
 {
-private:
+
 	double side;
 public:
 	double get_side()const
@@ -97,12 +111,6 @@ public:
 	{
 		this->side = side;
 	}
-	Square(double side,SHAPE_TAKE_PARAMETERS):Shape(SHAPE_GIVE_PARAMETERS)
-	{
-		set_side(side);
-	}
-	~Square(){}
-
 	double get_area()const override
 	{
 		return side * side;
@@ -141,10 +149,22 @@ public:
 		ReleaseDC(hwnd, hdc);
 		//Контекст устройства и все инструменты занимают ресурсы, нужно освобождать в конце работы
 	}
+	Square(double side, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
+	{
+		set_side(side);
+	}
+	~Square() {}
+	void info()const
+	{
+		cout << typeid(*this).name() << endl;
+		cout << "Длина стороны: " << get_side() << endl;
+		Shape::info();
+	}
 };
+#endif //SQUARE_INDEPENDENT
+
 class Rectangle :public Shape
 {
-private:
 	 double side_a;
 	 double side_b;
 public:
@@ -158,11 +178,19 @@ public:
 	 }
 	 void set_side_a(double side_a)
 	 {
+		 if (side_a < MIN_DIMENSION) side_a = MIN_DIMENSION;
+		 if (side_a > MAX_DIMENSION) side_a = MAX_DIMENSION;
 		 this->side_a = side_a;
 	 }
 	 void set_side_b(double side_b)
 	 {
+		 if (side_b < MIN_DIMENSION) side_b = MIN_DIMENSION;
+		 if (side_b > MAX_DIMENSION) side_b = MAX_DIMENSION;
 		 this->side_b = side_b;
+	 }
+	 double get_diagonal()const
+	 {
+		 return sqrt(side_a * side_a + side_b * side_b);
 	 }
 	 double get_area()const override
 	 {
@@ -199,6 +227,20 @@ public:
 		set_side_b(side_b);
 	}
 	~Rectangle(){}
+	void info()const
+	{
+		cout << typeid(*this).name() << endl;
+		cout << "Сторона А: " << get_side_a() << endl;
+		cout << "Сторона B: " << get_side_b() << endl;
+		cout << "Диагональ: " << get_diagonal() << endl;
+		Shape::info();
+	}
+};
+class Square :public Rectangle
+{
+public:
+	Square(double side, SHAPE_TAKE_PARAMETERS):Rectangle(side,side,SHAPE_GIVE_PARAMETERS){}
+	~Square(){}
 };
 
 class Circle :public Shape
@@ -212,15 +254,21 @@ public:
 	}
 	void set_radius(double radius)
 	{
+		if (radius < MIN_DIMENSION) radius = MIN_DIMENSION;
+		if (radius > MAX_DIMENSION) radius = MAX_DIMENSION;
 		this->radius = radius;
 	}
 	double get_area()const override
 	{
-		return 3.14*radius*radius;
+		return M_PI*pow(radius,2);
+	}
+	double get_diameter()const
+	{
+		return 2 * radius;
 	}
 	double get_perimeter()const override
 	{
-		return 3.14 * 2 * radius;
+		return M_PI * 2 * radius;
 	}
 	void draw()const override
 	{
@@ -233,7 +281,7 @@ public:
 		SelectObject(hdc, hPen);
 		SelectObject(hdc, hBrush);
 
-		Ellipse(hdc, start_x, start_y, start_x + radius, start_y + radius);
+		::Ellipse(hdc, start_x, start_y, start_x + get_diameter(), start_y + get_diameter());
 
 		DeleteObject(hPen);
 		DeleteObject(hBrush);
@@ -242,16 +290,34 @@ public:
 	}
 	Circle(double radius, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
 	{
-		set_color(color);
-		set_start_x(start_x);
-		set_start_y(start_y);
 		set_radius(radius);
 	}
 	~Circle(){}
+	void info()const
+	{
+		cout<<typeid(*this).name() << endl;
+		cout << "Радиус круга: " << get_radius() << endl;
+		cout << "Диаметр круга: " << get_diameter() << endl;
+		Shape::info();
+	}
 };
+
 class Triangle :public Shape
 {
-private:
+
+public:
+	virtual double get_height()const = 0;
+	Triangle(SHAPE_TAKE_PARAMETERS):Shape(SHAPE_GIVE_PARAMETERS){}
+	~Triangle() {}
+	void info()const
+	{
+		cout << "Высота треугольника: " << get_height() << endl;
+		Shape::info();
+	}
+};
+
+class EquilateralTriangle :public Triangle
+{
 	double side;
 public:
 	double get_side()const
@@ -260,11 +326,17 @@ public:
 	}
 	void set_side(double side)
 	{
+		if (side < MIN_DIMENSION) side = MIN_DIMENSION;
+		if (side > MAX_DIMENSION) side = MAX_DIMENSION;
 		this->side = side;
+	}
+	double get_height()const override
+	{
+		return sqrt(pow(side, 2) - pow(side / 2, 2));
 	}
 	double get_area()const override
 	{
-		return side * side * sqrt(3) / 4;
+		return pow(get_height(),2)*sqrt(3);
 	}
 	double get_perimeter()const override
 	{
@@ -280,55 +352,56 @@ public:
 
 		SelectObject(hdc, hPen);
 		SelectObject(hdc, hBrush);
-		POINT polygon[3] = { {start_x,start_y},{start_x + side,start_y},{start_x+side/2,side * sqrt(3)/2 + start_y}};
-		::Polygon(hdc, polygon,3);
+		POINT vertex[3] = 
+		{ 
+			{start_x,start_y},
+			{start_x + side,start_y},
+			{start_x + side / 2,start_y-get_height()}
+		};
+		::Polygon(hdc, vertex, 3);
 
 		DeleteObject(hPen);
 		DeleteObject(hBrush);
 
 		ReleaseDC(hwnd, hdc);
 	}
-	Triangle(double side, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
+	EquilateralTriangle(double side, SHAPE_TAKE_PARAMETERS) :Triangle(SHAPE_GIVE_PARAMETERS)
 	{
 		set_side(side);
 	}
-	~Triangle() {}
+	~EquilateralTriangle(){}
+	void info()
+	{
+		cout << typeid(*this).name() << endl;
+		cout << "Длина стороны: " << side << endl;
+		Triangle::info();
+	}
 };
 
-//#define SQUARE
-//#define RECTANGLE
-//#define CIRCLE
+#define SQUARE
+#define RECTANGLE
+#define CIRCLE
 #define TRIANGLE
 void main()
 {
 	setlocale(LC_ALL, "");
 #ifdef SQUARE
-	Square square(150, Color::red,200,200,5);
-	cout << "Длина стороны: " << square.get_side() << endl;
-	cout << "Периметр:\t" << square.get_perimeter() << endl;
-	cout << "Площадь:\t" << square.get_area() << endl;
-	square.draw();
+	Square square(150, Color::red,300,10,5);
+	square.info();
+	cout << delimiter << endl;
 #endif //SQUARE
 #ifdef RECTANGLE
-	class Rectangle rect(200, 150,Color::blue,200,500,5);
-	cout << "Сторона А:\t" << rect.get_side_a() << endl;
-	cout << "Сторона B:\t" << rect.get_side_b() << endl;
-	cout << "Площадь:\t" << rect.get_area() << endl;
-	cout << "Периметр:\t" << rect.get_perimeter() << endl;
-	rect.draw();
+	class Rectangle rect(250, 150,Color::blue,300,210,5);
+	rect.info();
+	cout << delimiter << endl;
 #endif //RECTANGLE
 #ifdef CIRCLE
-	Circle circle(150, Color::green, 200, 200, 5);
-	cout << "Радиус круга: " << circle.get_radius() << endl;
-	cout << "Периметр:\t" << circle.get_perimeter() << endl;
-	cout << "Площадь:\t" << circle.get_area() << endl;
-	circle.draw();
+	Circle circle(150, Color::yellow, 700, 10, 5);
+	circle.info();
+	cout << delimiter << endl;
 #endif //CIRCLE
 #ifdef TRIANGLE
-	class Triangle triang(150, Color::yellow, 300, 300, 5);
-	cout << "Длина стороны: " << triang.get_side() << endl;
-	cout << "Периметр:\t" << triang.get_perimeter() << endl;
-	cout << "Площадь:\t" << triang.get_area() << endl;
-	triang.draw();
+	class EquilateralTriangle et(150, Color::green, 570, 300, 15);
+	et.info();
 #endif //TRIANGLE
 }
