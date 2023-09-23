@@ -415,7 +415,42 @@ public:
 	{
 		return hip * 2 + base;
 	}
+	void draw() const override
+	{
+		HWND hwnd = GetConsoleWindow();
+		HDC hdc = GetDC(hwnd);
 
+		HPEN hPen = CreatePen(PS_SOLID, line_width, color);
+		HBRUSH hBrush = CreateSolidBrush(color);
+
+		SelectObject(hdc, hPen);
+		SelectObject(hdc, hBrush);
+		POINT vertex[3] =
+		{
+			{start_x,start_y},
+			{start_x + base/2,start_y+get_height()},
+			{start_x + base,start_y}
+		};
+		::Polygon(hdc, vertex, 3);
+
+		DeleteObject(hPen);
+		DeleteObject(hBrush);
+
+		ReleaseDC(hwnd, hdc);
+	}
+	IsoscelesTriangle(double hip, double base, SHAPE_TAKE_PARAMETERS) :Triangle(SHAPE_GIVE_PARAMETERS)
+	{
+		set_hip(hip);
+		set_base(base);
+	}
+	~IsoscelesTriangle(){}
+	void info()
+	{
+		cout << typeid(*this).name() << endl;
+		cout << "Длина стороны: " << hip << endl;
+		cout << "Длина основания: " << base << endl;
+		Triangle::info();
+	}
 };
 
 class RightTriangle :public Triangle
