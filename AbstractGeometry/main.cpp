@@ -39,6 +39,9 @@ protected:
 	int start_x;
 	int start_y;
 	int line_width;
+
+	BOOL(__stdcall *DrawingFunction)(HDC, int, int, int, int);
+	int dimensions[2]{};
 public:
 	Color get_color()const
 	{
@@ -80,7 +83,25 @@ public:
 	}
 	virtual double get_area()const = 0;
 	virtual double get_perimeter()const = 0;
-	virtual void draw()const = 0;
+	//virtual void draw()const = 0;
+	virtual void draw()const
+	{
+		HWND hwnd = GetConsoleWindow();
+		HDC hdc = GetDC(hwnd);
+
+		HPEN hPen = CreatePen(PS_SOLID, line_width, color);
+		HBRUSH hBrush = CreateSolidBrush(color);
+
+		SelectObject(hdc, hPen);
+		SelectObject(hdc, hBrush);
+
+		DrawingFunction(hdc, start_x, start_y, start_x + dimensions[0], start_y + dimensions[1]);
+
+		DeleteObject(hPen);
+		DeleteObject(hBrush);
+
+		ReleaseDC(hwnd, hdc);
+	}
 	Shape(SHAPE_TAKE_PARAMETERS)
 	{
 		set_color(color);
@@ -200,7 +221,7 @@ public:
 	 {
 		 return (side_a + side_b) * 2;
 	 }
-	 void draw()const override
+    /*void draw()const override
 	 {
 		 HWND hwnd = GetConsoleWindow();
 		 HDC hdc = GetDC(hwnd);
@@ -217,7 +238,7 @@ public:
 		 DeleteObject(hBrush);
 
 		 ReleaseDC(hwnd, hdc);
-	}
+	}*/
 	Rectangle(double side_a, double side_b, SHAPE_TAKE_PARAMETERS):Shape(SHAPE_GIVE_PARAMETERS)
 	{
 		set_color(color);
@@ -225,6 +246,7 @@ public:
 		set_start_y(start_y);
 		set_side_a(side_a);
 		set_side_b(side_b);
+		DrawingFunction = ::Rectangle;
 	}
 	~Rectangle(){}
 	void info()const
@@ -291,6 +313,7 @@ public:
 	Circle(double radius, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
 	{
 		set_radius(radius);
+		DrawingFunction = ::Ellipse;
 	}
 	~Circle(){}
 	void info()const
