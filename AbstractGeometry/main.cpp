@@ -380,6 +380,7 @@ public:
 
 class IsoscelesTriangle : public Triangle
 {
+	//https://www-formula.ru/bisectormedianheightisoscelestriangle
 	double hip;
 	double base;
 public:
@@ -455,6 +456,7 @@ public:
 
 class RightTriangle :public Triangle
 {
+	//https://www-formula.ru/heightrectangulartriangle
 	double leg_a;
 	double leg_b;
 public:
