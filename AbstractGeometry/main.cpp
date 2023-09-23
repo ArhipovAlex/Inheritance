@@ -378,6 +378,125 @@ public:
 	}
 };
 
+class IsoscelesTriangle : public Triangle
+{
+	double hip;
+	double base;
+public:
+	double get_hip()const
+	{
+		return hip;
+	}
+	double get_base()const
+	{
+		return base;
+	}
+	void set_hip(double hip)
+	{
+		if (hip < MIN_DIMENSION) hip = MIN_DIMENSION;
+		if (hip > MAX_DIMENSION) hip = MAX_DIMENSION;
+		this->hip = hip;
+	}
+	void set_base(double base)
+	{
+		if (base < MIN_DIMENSION) base = MIN_DIMENSION;
+		if (base > MAX_DIMENSION) base = MAX_DIMENSION;
+		this->base = base;
+	}
+	double get_height()const override
+	{
+		return sqrt(pow(hip, 2) - pow(base, 2) / 4);
+	}
+	double get_area()const override
+	{
+		return base * get_height() / 2;
+	}
+	double get_perimeter()const override
+	{
+		return hip * 2 + base;
+	}
+
+};
+
+class RightTriangle :public Triangle
+{
+	double leg_a;
+	double leg_b;
+public:
+	double get_leg_a()
+	{
+		return leg_a;
+	}
+	double get_leg_b()
+	{
+		return leg_b;
+	}
+	void set_leg_a(double leg_a)
+	{
+		if (leg_a < MIN_DIMENSION) leg_a = MIN_DIMENSION;
+		if (leg_a > MAX_DIMENSION) leg_a = MAX_DIMENSION;
+		this->leg_a = leg_a;
+	}
+	void set_leg_b(double leg_b)
+	{
+		if (leg_b < MIN_DIMENSION) leg_b = MIN_DIMENSION;
+		if (leg_b > MAX_DIMENSION) leg_b = MAX_DIMENSION;
+		this->leg_b = leg_b;
+	}
+	double get_hypotenuse() const
+	{
+		return sqrt(pow(leg_a, 2) + pow(leg_b, 2));
+	}
+	double get_height() const override
+	{
+		return (leg_a * leg_b) / get_hypotenuse();
+	}
+	double get_area() const override
+	{
+		return leg_a * leg_b / 2;
+	}
+	double get_perimeter() const override
+	{
+		return leg_a + leg_b + get_hypotenuse();
+	}
+	void draw() const override
+	{
+		HWND hwnd = GetConsoleWindow();
+		HDC hdc = GetDC(hwnd);
+
+		HPEN hPen = CreatePen(PS_SOLID, line_width, color);
+		HBRUSH hBrush = CreateSolidBrush(color);
+
+		SelectObject(hdc, hPen);
+		SelectObject(hdc, hBrush);
+		POINT vertex[3] =
+		{
+			{start_x,start_y},
+			{start_x + leg_a,start_y},
+			{start_x + leg_a,start_y-leg_b}
+		};
+		::Polygon(hdc, vertex, 3);
+
+		DeleteObject(hPen);
+		DeleteObject(hBrush);
+
+		ReleaseDC(hwnd, hdc);
+	}
+	RightTriangle(double leg_a, double leg_b, SHAPE_TAKE_PARAMETERS) :Triangle(SHAPE_GIVE_PARAMETERS)
+	{
+		set_leg_a(leg_a);
+		set_leg_b(leg_b);
+	}
+	~RightTriangle(){}
+	void info()
+	{
+		cout << typeid(*this).name() << endl;
+		cout << " Катет А: " << leg_a << endl;
+		cout << " Катет B: " << leg_b << endl;
+		Triangle::info();
+	}
+};
+
 #define SQUARE
 #define RECTANGLE
 #define CIRCLE
