@@ -246,7 +246,6 @@ public:
 	Square(double side, SHAPE_TAKE_PARAMETERS):Rectangle(side,side,SHAPE_GIVE_PARAMETERS){}
 	~Square(){}
 };
-
 class Circle :public Shape
 {
 private:
@@ -341,7 +340,6 @@ public:
 	}
 
 };
-
 class EquilateralTriangle :public Triangle
 {
 	double side;
@@ -390,7 +388,6 @@ public:
 		Triangle::info();
 	}
 };
-
 class IsoscelesTriangle : public Triangle
 {
 	//https://www-formula.ru/bisectormedianheightisoscelestriangle
@@ -466,7 +463,6 @@ public:
 		Triangle::info();
 	}
 };
-
 class RightTriangle :public Triangle
 {
 	//https://www-formula.ru/heightrectangulartriangle
@@ -544,6 +540,84 @@ public:
 		cout << " Катет А: " << leg_a << endl;
 		cout << " Катет B: " << leg_b << endl;
 		Triangle::info();
+	}
+};
+
+class Parallelogramm :public Shape
+{
+	double side_a;
+	double side_b;
+	double angle;
+public:
+	double get_side_a()const
+	{
+		return side_a;
+	}
+	double get_side_b()const
+	{
+		return side_b;
+	}
+	double get_angle()const
+	{
+		return angle;
+	}
+	void set_side_a(double side_a)
+	{
+		if (side_a < MIN_DIMENSION) side_a = MIN_DIMENSION;
+		if (side_a > MAX_DIMENSION) side_a = MAX_DIMENSION;
+		this->side_a = side_a;
+	}
+	void set_side_b(double side_b)
+	{
+		if (side_b < MIN_DIMENSION) side_b = MIN_DIMENSION;
+		if (side_b > MAX_DIMENSION) side_b = MAX_DIMENSION;
+		this->side_b = side_b;
+	}
+	void set_angle(double angle)
+	{
+		angle = abs(angle);
+		while (angle > 180) angle -= 180;
+		this->angle = angle;
+	}
+	double get_diagonal()const
+	{
+		return sqrt(side_a * side_a + side_b * side_b);
+	}
+	double get_area()const override
+	{
+		return side_a * side_b*sin(angle);
+	}
+	double get_perimeter()const override
+	{
+		return (side_a + side_b) * 2;
+	}
+	double get_height()const
+	{
+		return side_a * sin(angle);
+	}
+	void draw() const override
+	{
+		HWND hwnd = GetConsoleWindow();
+		HDC hdc = GetDC(hwnd);
+
+		HPEN hPen = CreatePen(PS_SOLID, line_width, color);
+		HBRUSH hBrush = CreateSolidBrush(color);
+
+		SelectObject(hdc, hPen);
+		SelectObject(hdc, hBrush);
+		POINT vertex[4] =
+		{
+			{start_x,start_y},
+			{start_x+side_a*sin(angle),start_y + get_height()},
+			{start_x + side_b + side_a * sin(angle),start_y+get_height()},
+			{start_x + side_b,start_y}
+		};
+		::Polygon(hdc, vertex, 4);
+
+		DeleteObject(hPen);
+		DeleteObject(hBrush);
+
+		ReleaseDC(hwnd, hdc);
 	}
 };
 
